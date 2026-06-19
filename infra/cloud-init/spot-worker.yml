@@ -1,0 +1,46 @@
+#cloud-config
+# Spot worker for sac experiments. Tailscale + Docker + Python.
+# Variables: SPOT_HOSTNAME, TAILSCALE_AUTH_KEY replaced at provision time.
+
+hostname: SPOT_HOSTNAME
+timezone: Asia/Kolkata
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - python3.12
+  - python3.12-venv
+  - python3-pip
+  - docker.io
+  - curl
+  - git
+
+write_files:
+  - path: /etc/sysctl.d/99-swap.conf
+    content: vm.swappiness=10
+
+  - path: /opt/sac-sandbox/runner.py
+    content: |
+      # Placeholder — replaced by actual sandbox_runner.py from harness/
+      print("Sandbox runner placeholder")
+
+runcmd:
+  # Swap (2GB for D4as_v5 and larger)
+  - fallocate -l 2G /swapfile
+  - chmod 600 /swapfile
+  - mkswap /swapfile
+  - swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
+  # Docker
+  - systemctl enable docker
+  - usermod -aG docker sumit
+
+  # Tailscale
+  - curl -fsSL https://tailscale.com/install.sh | sh
+  - tailscale up --auth-key=TAILSCALE_AUTH_KEY --ssh
+
+  # Disable Tailscale key expiry via API (handled by provision.py post-creation)
+
+final_message: "Spot worker ready. Tailscale IP: $(tailscale ip -4)"
