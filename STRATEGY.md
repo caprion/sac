@@ -191,15 +191,16 @@ GPT-4.1 with oracle retrieval = 93.49%. Same model with BM25 = 14.58%. A 79-poin
 
 ### 3. Commodity Infra Changes Who Can Build This
 
-Perplexity runs on proprietary sandboxes. Eve runs on Vercel microVMs. If the pattern works on $15/month Azure Spot VMs, it's accessible to anyone — not just platform companies.
+Perplexity runs on proprietary sandboxes. Eve runs on Vercel microVMs. We run on a single Azure D16as_v5 (16 vCPU, 64 GB) that we deallocate when idle — $0.444/hr compute, $0 when stopped. Total experiment compute: ~$12. That's the difference between "cool paper" and "pattern you can actually use."
 
 ## The Hypothesis
 
 ```
-Code-gen search pipelines, running in sandboxes on commodity Spot VMs,
-with filesystem-first skills and structured retrieval primitives,
-will outperform tool-calling agents on complex multi-step search tasks
-— at lower cost, with better reliability, and without platform lock-in.
+Code-gen search pipelines, running in Docker sandboxes on a single
+commodity VM, with filesystem-first skills and structured retrieval
+primitives, will outperform tool-calling agents on complex multi-step
+search tasks — at lower cost, with better reliability, and without
+platform lock-in.
 ```
 
 ## The Null Hypothesis
